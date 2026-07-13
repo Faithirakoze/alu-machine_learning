@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+"""Module for performing valid convolution on grayscale images"""
 import numpy as np
+
 
 def convolve_grayscale_valid(images, kernel):
     """
