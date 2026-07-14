@@ -1,48 +1,47 @@
 #!/usr/bin/env python3
+"""Module for performing pooling on images"""
+
 import numpy as np
 
-def convolve(images, kernels, padding='same', stride=(1, 1)):
+
+def pool(images, kernel_shape, stride, mode='max'):
     """
-    Performs a convolution on images using multiple kernels
+    Performs pooling on images
+
+    Args:
+        images (numpy.ndarray): shape (m, h, w, c)
+        kernel_shape (tuple): (kh, kw)
+        stride (tuple): (sh, sw)
+        mode (str): 'max' or 'avg'
+
+    Returns:
+        numpy.ndarray: pooled output
     """
+
     m, h, w, c = images.shape
-    kh, kw, _, nc = kernels.shape
+    kh, kw = kernel_shape
     sh, sw = stride
 
-    # Padding
-    if padding == 'same':
-        ph = int(np.ceil(((h - 1) * sh + kh - h) / 2))
-        pw = int(np.ceil(((w - 1) * sw + kw - w) / 2))
-    elif padding == 'valid':
-        ph, pw = 0, 0
-    else:
-        ph, pw = padding
+    # Compute output dimensions
+    out_h = (h - kh) // sh + 1
+    out_w = (w - kw) // sw + 1
 
-    # Apply padding
-    images_padded = np.pad(
-        images,
-        ((0, 0), (ph, ph), (pw, pw), (0, 0)),
-        mode='constant'
-    )
+    output = np.zeros((m, out_h, out_w, c))
 
-    # Output dimensions
-    out_h = (h + 2 * ph - kh) // sh + 1
-    out_w = (w + 2 * pw - kw) // sw + 1
-
-    output = np.zeros((m, out_h, out_w, nc))
-
-    # ONLY 3 LOOPS
+    # ONLY TWO LOOPS
     for i in range(out_h):
         for j in range(out_w):
-            for k in range(nc):
-                h_start = i * sh
-                h_end = h_start + kh
-                w_start = j * sw
-                w_end = w_start + kw
 
-                slice_img = images_padded[:, h_start:h_end, w_start:w_end, :]
-                kernel = kernels[:, :, :, k]
+            h_start = i * sh
+            h_end = h_start + kh
+            w_start = j * sw
+            w_end = w_start + kw
 
-                output[:, i, j, k] = np.sum(slice_img * kernel, axis=(1, 2, 3))
+            window = images[:, h_start:h_end, w_start:w_end, :]
+
+            if mode == 'max':
+                output[:, i, j, :] = np.max(window, axis=(1, 2))
+            elif mode == 'avg':
+                output[:, i, j, :] = np.mean(window, axis=(1, 2))
 
     return output
