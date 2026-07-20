@@ -1,15 +1,21 @@
-def determinant(matrix):
-    # Validate: must be a list of lists
-    if (
-        not isinstance(matrix, list)
-        or len(matrix) == 0
-        or not all(isinstance(row, list) for row in matrix)
-    ):
-        raise TypeError("matrix must be a list of lists")
+#!/usr/bin/env python3
+"""Calculate the determinant of a matrix."""
 
-    # Handle 0x0 matrix [[]]
+
+def determinant(matrix):
+    """Returns the determinant of a matrix."""
+
+    # Handle 0x0 matrix
     if matrix == [[]]:
         return 1
+
+    # Validate: must be list
+    if not isinstance(matrix, list):
+        raise TypeError("matrix must be a list of lists")
+
+    # Validate: must be list of lists
+    if not all(isinstance(row, list) for row in matrix):
+        raise TypeError("matrix must be a list of lists")
 
     n = len(matrix)
 
@@ -23,17 +29,18 @@ def determinant(matrix):
 
     # Base case: 2x2
     if n == 2:
-        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+        return (
+            matrix[0][0] * matrix[1][1]
+            - matrix[0][1] * matrix[1][0]
+        )
 
-    # Recursive cofactor expansion along row 0
+    # Recursive case
     det = 0
     for j in range(n):
-        # Build the submatrix (minor) by removing row 0 and column j
         submatrix = [
             [matrix[i][k] for k in range(n) if k != j]
             for i in range(1, n)
         ]
-        sign = (-1) ** j
-        det += sign * matrix[0][j] * determinant(submatrix)
+        det += ((-1) ** j) * matrix[0][j] * determinant(submatrix)
 
     return det
