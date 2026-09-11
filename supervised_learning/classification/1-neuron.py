@@ -35,3 +35,17 @@ class Neuron:
     def A(self):
         """Getter for the activated output"""
         return self.__A
+
+    def forward_prop(self, X):
+        """
+        Calculates the forward propagation of the neuron
+
+        X is a numpy.ndarray with shape (nx, m) that contains
+        the input data
+            nx is the number of input features to the neuron
+            m is the number of examples
+        """
+        z = np.matmul(self.__W, X) + self.__b
+        self.__A = 1 / (1 + np.exp(-z))
+        return self.__A
+    
